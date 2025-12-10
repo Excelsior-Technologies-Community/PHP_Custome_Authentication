@@ -108,16 +108,22 @@ USE php_auth;
 
 CREATE TABLE custome (
     id INT AUTO_INCREMENT PRIMARY KEY,
+
     name VARCHAR(100) NOT NULL,
     email VARCHAR(150) UNIQUE NOT NULL,
     password VARCHAR(255) NOT NULL,
+
     status TINYINT DEFAULT 1 COMMENT '1=Active, 0=Inactive',
+
     created_by INT DEFAULT NULL,
     updated_by INT DEFAULT NULL,
+
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+
     deleted_at TIMESTAMP NULL DEFAULT NULL
 );
+
 ```
 
 Step 3: Configure Database Connection
@@ -125,46 +131,73 @@ Step 3: Configure Database Connection
 File: config/database.php
 ```
 <?php
-$host = "localhost";
-$dbname = "php_auth";
-$username = "root";
-$password = "";
+// config/database.php
 
+// Database connection settings
+$host = "localhost";      // Database host (usually localhost)
+$dbname = "php_auth";     // Name of the database
+$username = "root";       // Database username
+$password = "";           // Database password (set if any)
+
+// Try to establish a connection to the database using PDO
 try {
     $pdo = new PDO(
-        "mysql:host=$host;dbname=$dbname;charset=utf8",
-        $username,
-        $password
+        "mysql:host=$host;dbname=$dbname;charset=utf8", // DSN: Data Source Name
+        $username,                                     // DB username
+        $password                                      // DB password
     );
+
+    // Set error mode to exception, so errors throw exceptions
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+
+    // Optional: Set default fetch mode to associative array
+    // This means $stmt->fetch() will return an array with column names as keys
     $pdo->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
+
 } catch (PDOException $e) {
+    // If connection fails, show an error message and stop execution
+    // In production, avoid showing detailed errors for security reasons
     die("Database connection failed: " . $e->getMessage());
 }
+
 ```
 Step 4: Core Helper Functions
 
 File: core/helpers.php
 ```
 <?php
+// core/helpers.php
+
+// Check if a user is logged in
+// Returns true if 'custome_id' exists in session, false otherwise
 function isLoggedIn() {
     return isset($_SESSION['custome_id']);
 }
 
+// Redirect to a given URL
+// Stops further execution after redirect
 function redirect($url) {
-    header("Location: $url");
-    exit;
+    header("Location: $url"); // Send HTTP header to redirect
+    exit;                     // Stop script execution immediately
 }
 
+// Retrieve old input value after form submission
+// Helps to repopulate form fields if validation fails
 function old($key) {
+// Check if the key exists in $_POST, sanitize with htmlspecialchars, else return empty string
     return isset($_POST[$key]) ? htmlspecialchars($_POST[$key]) : '';
 }
+
 ```
+These helpers handle redirects, login checks, and input sanitization.
+---
+
 Step 5: Create Includes (Header, Footer, Auth Check)
 
-Header: includes/header.php
+1. Header: includes/header.php
 ```
 <?php
+// includes/header.php
 ?>
 <!doctype html>
 <html lang="en">
@@ -178,31 +211,52 @@ Header: includes/header.php
   <div class="container">
 
 ```
-Footer: includes/footer.php
+2. Footer: includes/footer.php
 ```
 <?php
+// includes/footer.php
 ?>
   </div> <!-- /.container -->
 </body>
 </html>
 
+
 ```
-Auth Check: includes/auth.php
+3. Auth Check: includes/auth.php
 ```
 <?php
+// includes/auth.php
+
+// Start PHP session to access session variables
 session_start();
 
+// Check if the user is logged in by looking for 'custome_id' in session
 if (!isset($_SESSION['custome_id'])) {
+    // If not logged in, redirect the user to the login page
     header("Location: login.php");
-    exit;
+    exit; // Stop further script execution
 }
+
 ```
 Step 6: Authentication PHP Files
 
-index.php: public/index.php
+---
+
+6.1) index.php: public/index.php
+
+This is the index page of the project. It provides navigation links for the user to go to the registration or login pages.
+It also starts a session to handle user login status if needed in the future.
+
 ```
 <?php
+// public/index.php
+
+// Start PHP session to track user login and session data
 session_start();
+?>
+
+<?php 
+// Include the header file which contains the opening HTML tags and CSS links
 require_once __DIR__ . "/../includes/header.php"; 
 ?>
 
@@ -210,52 +264,81 @@ require_once __DIR__ . "/../includes/header.php";
 
 <p>Use the links below:</p>
 
+<!-- Navigation links for the user -->
 <div class="nav">
-    <a href="register.php">Register</a>
-    <a href="login.php">Login</a>
-    <a href="dashboard.php">Dashboard</a>
+    <a href="register.php">Register</a> <!-- Link to registration page -->
+    <a href="login.php">Login</a>       <!-- Link to login page -->
+    <a href="dashboard.php">Dashboard</a>  <!--  it can be enabled after login is implemented -->
 </div>
 
 <?php 
+// Include the footer file which contains the closing HTML tags
 require_once __DIR__ . "/../includes/footer.php"; 
 ?>
 
 ```
-register.php: public/register.php
-```
-(Handles user registration, password hashing, and redirects to login)
+6.2) register.php: public/register.php
 
+This file handles user registration. It allows a new user to register by providing their name, email, and password.
+It includes validation for empty fields, valid email format, password matching, and checks if the email already exists in the database. After successful registration, the user is redirected to the login page.
+
+```
 <?php
+// public/register.php
+
+// Start PHP session to handle session variables for user login and messages
 session_start();
+
+// Include database connection file to interact with MySQL
 require_once "../config/database.php";
+
+// Include helper functions (e.g., redirect, old input value, etc.)
 require_once "../core/helpers.php";
 
+// Initialize error variable to store validation or registration errors
 $error = '';
 
+// Check if the form has been submitted via POST
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+
+    // Get form input values and trim spaces
     $name  = trim($_POST['name'] ?? '');
     $email = trim($_POST['email'] ?? '');
     $pass  = $_POST['password'] ?? '';
     $pass2 = $_POST['password_confirm'] ?? '';
 
+    // Validation: check required fields
     if ($name === '' || $email === '' || $pass === '') {
         $error = "All fields are required.";
-    } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+    } 
+    // Validation: check email format
+    elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
         $error = "Invalid email format.";
-    } elseif ($pass !== $pass2) {
+    } 
+    // Validation: check if passwords match
+    elseif ($pass !== $pass2) {
         $error = "Passwords do not match.";
-    } else {
+    } 
+    else {
+        // Check if the email already exists in the database
         $stmt = $pdo->prepare("SELECT id FROM custome WHERE email = ? LIMIT 1");
         $stmt->execute([$email]);
 
         if ($stmt->fetch()) {
+            // Email already exists
             $error = "Email already registered.";
-        } else {
+        } 
+        else {
+            // Hash the password securely
             $hash = password_hash($pass, PASSWORD_DEFAULT);
+
+            // Insert new user record into 'custome' table
             $stmt = $pdo->prepare(
                 "INSERT INTO custome (name, email, password, status, created_by) VALUES (?, ?, ?, 1, NULL)"
             );
             $stmt->execute([$name, $email, $hash]);
+
+            // Redirect to login page after successful registration
             header("Location: login.php");
             exit;
         }
@@ -263,16 +346,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 ?>
 
-<?php require_once "../includes/header.php"; ?>
+<?php 
+// Include the common header HTML
+require_once "../includes/header.php"; 
+?>
 
 <h2>Register</h2>
+
+<!-- Display error message if there is any -->
 <?php if ($error): ?>
   <div class="error"><?= htmlspecialchars($error) ?></div>
 <?php endif; ?>
 
+<!-- Registration form -->
 <form method="post" action="">
   <div class="form-group">
     <label>Name</label>
+    <!-- Keep previous input value if form submission fails -->
     <input type="text" name="name" value="<?= old('name') ?>">
   </div>
 
@@ -294,58 +384,90 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   <button type="submit">Register</button>
 </form>
 
+<!-- Link to login page for existing users -->
 <p class="link small">Already have an account? <a href="login.php">Login here</a></p>
 
-<?php require_once "../includes/footer.php"; ?>
+<?php 
+// Include the common footer HTML
+require_once "../includes/footer.php"; 
+?>
 
 ```
-login.php: public/login.php
-```
-(Handles login, password verification, session start, session_regenerate_id, redirect to dashboard)
+6.3) login.php: public/login.php
 
+This file handles user login. It validates the input fields, checks the database for a matching active user, verifies the password, and starts a session for the logged-in user.
+It also includes session security measures like session_regenerate_id() to prevent session fixation. On successful login, the user is redirected to the dashboard.
+```
 <?php
+// public/login.php
+
+// Start PHP session to manage user login
 session_start();
+
+// Include database connection to query user data
 require_once "../config/database.php";
+
+// Include helper functions (e.g., old input, redirect)
 require_once "../core/helpers.php";
 
+// Initialize error message variable
 $error = '';
 
+// Check if form is submitted
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+
+    // Get form inputs and trim spaces
     $email = trim($_POST['email'] ?? '');
     $pass  = $_POST['password'] ?? '';
 
+    // Validate that both fields are filled
     if ($email === '' || $pass === '') {
         $error = "Both fields are required.";
     } else {
+        // Query database for an active user with the given email
         $stmt = $pdo->prepare(
             "SELECT * FROM custome WHERE email = ? AND status = 1 AND deleted_at IS NULL LIMIT 1"
         );
         $stmt->execute([$email]);
         $custome = $stmt->fetch(PDO::FETCH_ASSOC);
 
+        // Check if user exists and password matches
         if ($custome && password_verify($pass, $custome['password'])) {
+            // Set meaningful session keys
             $_SESSION['custome_id']   = $custome['id'];
             $_SESSION['custome_name'] = $custome['name'];
+
+            // Protect against session fixation attacks
             session_regenerate_id(true);
+
+            // Redirect to dashboard after successful login
             header("Location: dashboard.php");
             exit;
         } else {
+            // Show error if credentials are invalid or account inactive
             $error = "Invalid credentials or inactive account.";
         }
     }
 }
 ?>
 
-<?php require_once "../includes/header.php"; ?>
+<?php 
+// Include common header HTML
+require_once "../includes/header.php"; 
+?>
 
 <h2>Login</h2>
+
+<!-- Display error message if exists -->
 <?php if ($error): ?>
   <div class="error"><?= htmlspecialchars($error) ?></div>
 <?php endif; ?>
 
+<!-- Login form -->
 <form method="post" action="">
   <div class="form-group">
     <label>Email</label>
+    <!-- Retain old email input in case of error -->
     <input type="email" name="email" value="<?= old('email') ?>">
   </div>
 
@@ -357,67 +479,119 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   <button type="submit">Login</button>
 </form>
 
+<!-- Link to registration page for new users -->
 <p class="link small">Don't have an account? <a href="register.php">Register</a></p>
 
-<?php require_once "../includes/footer.php"; ?>
+<?php 
+// Include common footer HTML
+require_once "../includes/footer.php"; 
+?>
+
+
 
 ```
-dashboard.php: public/dashboard.php
+6.4) dashboard.php: public/dashboard.php
 
-(Protected dashboard page with welcome message and links)
+This file is the dashboard page visible to logged-in users. It requires authentication and welcomes the user by displaying their name stored in the session.
+It also provides links for logging out and viewing the user list.
 ```
+
 <?php
+// public/dashboard.php
+
+// Include authentication check to ensure only logged-in users can access
 require_once "../includes/auth.php";
+
+// Include header HTML (opening tags, CSS, etc.)
 require_once "../includes/header.php";
 ?>
 
 <h2>Dashboard</h2>
+
+<!-- Display welcome message with the logged-in user's name -->
 <p>Welcome, <?= htmlspecialchars($_SESSION['custome_name']); ?>!</p>
 
+<!-- Optional: Display session ID for debugging purposes (commented out) -->
+<!-- <p class="small">Session ID: <?= session_id() ?></p> -->
+
+<!-- Navigation links for logged-in user -->
 <div>
-  <a href="logout.php">Logout</a> &nbsp;|&nbsp;
-  <a href="user.php">User list</a>
+  <a href="logout.php">Logout</a> <!-- Link to logout and destroy session -->
+  &nbsp;|&nbsp;
+  <a href="user.php">User list</a> <!-- Link to view all users (protected page) -->
 </div>
 
-<?php require_once "../includes/footer.php"; ?>
+<?php 
+// Include footer HTML (closing tags)
+require_once "../includes/footer.php"; 
+?>
 
 ```
-user.php: public/user.php
+6.5) user.php: public/user.php
 
-(Displays user list and handles soft delete)
+This file displays a list of registered users in a table format.
+It also allows the logged-in user to soft delete a user (mark as inactive without permanently removing them from the database).
+Soft-deleted users have status = 0 and deleted_at timestamp.
 ```
 <?php
+// public/users.php
+
+// Include authentication check to ensure only logged-in users can access
 require_once "../includes/auth.php";
+
+// Include database connection to fetch user data
 require_once "../config/database.php";
+
+// Include helper functions (optional for future use)
 require_once "../core/helpers.php";
 
+// Get action from URL query (e.g., softdelete)
 $action = $_GET['action'] ?? null;
+
+// Get user ID from URL query and cast to integer
 $id = isset($_GET['id']) ? (int)$_GET['id'] : null;
 
+// Handle action: soft delete a user
 if ($action && $id) {
   if ($action === 'softdelete') {
+    // Update user record to mark as inactive and set deleted_at timestamp
     $stmt = $pdo->prepare(
-      "UPDATE custome SET status = 0, deleted_at = NOW(), updated_by = ? WHERE id = ? AND deleted_at IS NULL"
+      "UPDATE custome 
+         SET status = 0,
+             deleted_at = NOW(),
+             updated_by = ?
+         WHERE id = ?
+           AND deleted_at IS NULL"
     );
+    // Execute query with current logged-in user ID and target user ID
     $stmt->execute([$_SESSION['custome_id'], $id]);
   }
+
+  // Redirect back to user list after action
   header("Location: user.php");
   exit;
 }
 
+// Fetch list of active users (excluding soft-deleted users)
 $stmt = $pdo->query(
   "SELECT id, name, email, status, created_at, updated_at, deleted_at
-   FROM custome
-   WHERE status = 1 AND deleted_at IS NULL
-   ORDER BY id ASC"
+     FROM custome
+     WHERE status = 1 AND deleted_at IS NULL
+     ORDER BY id ASC"
 );
+
+// Fetch all users as associative array
 $users = $stmt->fetchAll(PDO::FETCH_ASSOC);
 ?>
 
-<?php require_once "../includes/header.php"; ?>
+<?php 
+// Include header HTML (opening tags, CSS, etc.)
+require_once "../includes/header.php"; 
+?>
 
 <h2>User List</h2>
 
+<!-- Display users in a table -->
 <table class="table">
   <thead>
     <tr>
@@ -440,10 +614,11 @@ $users = $stmt->fetchAll(PDO::FETCH_ASSOC);
         <td><?= $u['created_at'] ?></td>
         <td><?= $u['updated_at'] ?></td>
         <td>
+          <!-- Soft delete button -->
           <a class="btn btn-danger"
-             href="user.php?action=softdelete&id=<?= $u['id'] ?>"
-             onclick="return confirm('Are you sure you want to delete this user?')">
-             Delete
+            href="user.php?action=softdelete&id=<?= $u['id'] ?>"
+            onclick="return confirm('Are you sure you want to delete this user?')">
+            Delete
           </a>
         </td>
       </tr>
@@ -451,22 +626,40 @@ $users = $stmt->fetchAll(PDO::FETCH_ASSOC);
   </tbody>
 </table>
 
-<?php require_once "../includes/footer.php"; ?>
+<?php 
+// Include footer HTML (closing tags)
+require_once "../includes/footer.php"; 
+?>
 
 ```
-logout.php: public/logout.php
+6.6) logout.php: public/logout.php
+
+This file handles user logout.
+It destroys the current session, clearing all stored session data, and then redirects the user to the login page.
+
 ```
 <?php
+// public/logout.php
+
+// Start session to access session variables
 session_start();
+
+// Clear all session data
 $_SESSION = [];
+
+// Destroy the session completely
 session_destroy();
+
+// Redirect user to login page after logout
 header("Location: login.php");
 exit;
+
 ```
 Step 7: Add CSS (Optional)
 
 File: public/css/style.css
 ```
+/* public/css/style.css */
 body {
     font-family: Arial, sans-serif;
     background: #f6f8fa;
@@ -482,11 +675,19 @@ body {
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
 }
 
-h2 { margin-top: 0; }
+h2 {
+    margin-top: 0;
+}
 
-.form-group { margin-bottom: 12px; }
+.form-group {
+    margin-bottom: 12px;
+}
 
-label { display: block; margin-bottom: 6px; font-weight: 600; }
+label {
+    display: block;
+    margin-bottom: 6px;
+    font-weight: 600;
+}
 
 input[type="text"],
 input[type="email"],
@@ -507,13 +708,25 @@ button {
     cursor: pointer;
 }
 
-.error { color: #b00020; margin-bottom: 10px; }
+.error {
+    color: #b00020;
+    margin-bottom: 10px;
+}
 
-.link { margin-top: 10px; display: block; }
+.link {
+    margin-top: 10px;
+    display: block;
+}
 
-.nav { margin-bottom: 16px; }
+.nav {
+    margin-bottom: 16px;
+}
 
-.nav a { margin-right: 10px; color: #2b6cb0; text-decoration: none; }
+.nav a {
+    margin-right: 10px;
+    color: #2b6cb0;
+    text-decoration: none;
+}
 
 .table {
     width: 100%;
@@ -528,31 +741,36 @@ button {
     text-align: left;
 }
 
-.small { font-size: 0.9rem; color: #666; }
+.small {
+    font-size: 0.9rem;
+    color: #666;
+}
+
 ```
 Step 8: Folder structure & files
 ```
 PHP_Custome_Authentication/
 ├── config/
-│   └── database.php
+│   └── database.php        # PDO connection (single point of truth)
 ├── core/
-│   └── helpers.php
+│   └── helpers.php         # small helper functions (old(), isLoggedIn(), etc.)
 ├── includes/
-│   ├── auth.php
-│   ├── header.php
-│   └── footer.php
-├── public/
+│   ├── auth.php            # session-based guard used on protected pages
+│   ├── header.php          # shared header, navigation (starts HTML)
+│   └── footer.php          # shared footer (closes HTML)
+├── public/                 # web root (serve this folder with Apache)
 │   ├── css/
-│   │   └── style.css
-│   ├── index.php
-│   ├── register.php
-│   ├── login.php
-│   ├── dashboard.php
-│   ├── user.php
-│   └── logout.php
+│   │   └── style.css       # styling for pages
+│   ├── index.php           # landing page
+│   ├── register.php        # registration (public)
+│   ├── login.php           # login (public)
+│   ├── dashboard.php       # protected dashboard (requires auth)
+│   ├── user.php            # admin-style users list and soft-delete action
+│   └── logout.php          # logout logic
 ├── sql/
-│   └── custome.sql
-└── README.md
+│   └── custome.sql         # SQL dump / schema for the custome table / this file not show 
+└── README.md               # this file
+
 ```
 Step 9: Run the Project
 

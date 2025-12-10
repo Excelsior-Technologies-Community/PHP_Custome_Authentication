@@ -1,0 +1,86 @@
+/* public/css/style.css */
+body {
+    font-family: Arial, sans-serif;
+    background: #f6f8fa;
+    margin: 0;
+    padding: 0;
+}
+
+.container {
+    max-width: 800px;
+    margin: 40px auto;
+    background: #fff;
+    padding: 24px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+}
+
+h2 {
+    margin-top: 0;
+}
+
+.form-group {
+    margin-bottom: 12px;
+}
+
+label {
+    display: block;
+    margin-bottom: 6px;
+    font-weight: 600;
+}
+
+input[type="text"],
+input[type="email"],
+input[type="password"] {
+    width: 100%;
+    padding: 10px;
+    box-sizing: border-box;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+button {
+    padding: 10px 16px;
+    border: 0;
+    background: #2b6cb0;
+    color: #fff;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.error {
+    color: #b00020;
+    margin-bottom: 10px;
+}
+
+.link {
+    margin-top: 10px;
+    display: block;
+}
+
+.nav {
+    margin-bottom: 16px;
+}
+
+.nav a {
+    margin-right: 10px;
+    color: #2b6cb0;
+    text-decoration: none;
+}
+
+.table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 12px;
+}
+
+.table th,
+.table td {
+    border: 1px solid #eee;
+    padding: 8px;
+    text-align: left;
+}
+
+.small {
+    font-size: 0.9rem;
+    color: #666;
+}

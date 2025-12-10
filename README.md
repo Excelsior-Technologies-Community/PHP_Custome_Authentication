@@ -77,6 +77,7 @@ mkdir config core includes public public\css sql
 
 ```
 After this you should have:
+```
 
 PHP_Custome_Authentication/
 ├── config/
@@ -86,6 +87,7 @@ PHP_Custome_Authentication/
 │   └── css/
 └── sql/
 
+```
 config/ → Database configuration
 
 core/ → Helper functions and core logic

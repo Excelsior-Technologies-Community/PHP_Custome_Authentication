@@ -190,7 +190,6 @@ function old($key) {
 
 ```
 These helpers handle redirects, login checks, and input sanitization.
----
 
 Step 5: Create Includes (Header, Footer, Auth Check)
 

@@ -777,10 +777,56 @@ Start XAMPP/Laragon/MAMP Apache & MySQL.
 
 Navigate to:
 ```
-http://localhost/PHP_Custome_Authentication/index.php
-http://localhost/PHP_Custome_Authentication/register.php
+http://localhost/PHP_Custome_Authentication/public/index.php
+http://localhost/PHP_Custome_Authentication/public/register.php
 
 ```
 Test registration, login, and dashboard access.
+---
 
-✅ Your PHP_Custom_Authentication Project is ready!
+# Output:
+
+
+For Index:
+
+```
+http://localhost/PHP_Custome_Authentication/public/index.php
+```
+<img width="1919" height="1090" alt="Screenshot 2025-12-13 113656" src="https://github.com/user-attachments/assets/7d958df5-f151-44b9-b087-27deefc23314" />
+
+---
+For Register:
+
+```
+http://localhost/PHP_Custome_Authentication/public/register.php
+```
+
+<img width="1919" height="1089" alt="Screenshot 2025-12-10 111227" src="https://github.com/user-attachments/assets/b542f376-bc39-48cc-812f-2ed585dbfa54" />
+
+---
+
+For Login:
+
+```
+http://localhost/PHP_Custome_Authentication/public/login.php
+```
+<img width="1919" height="1091" alt="Screenshot 2025-12-10 111245" src="https://github.com/user-attachments/assets/01386cc6-ed8e-4377-8efe-fcc7b792c00a" />
+
+---
+For Dashboard:
+
+```
+http://localhost/PHP_Custome_Authentication/public/dashboard.php
+```
+<img width="1919" height="1105" alt="Screenshot 2025-12-10 111255" src="https://github.com/user-attachments/assets/3163f9e2-fb20-4996-8769-262f5741df5b" />
+
+---
+For User List:
+
+```
+http://localhost/PHP_Custome_Authentication/public/user.php
+```
+<img width="1919" height="1085" alt="Screenshot 2025-12-10 111318" src="https://github.com/user-attachments/assets/345ecd36-543b-4ef6-8136-35f86b116634" />
+
+---
+Your PHP_Custom_Authentication Project is ready!

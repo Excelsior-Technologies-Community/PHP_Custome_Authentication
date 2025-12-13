@@ -829,4 +829,15 @@ http://localhost/PHP_Custome_Authentication/public/user.php
 <img width="1919" height="1085" alt="Screenshot 2025-12-10 111318" src="https://github.com/user-attachments/assets/345ecd36-543b-4ef6-8136-35f86b116634" />
 
 ---
+For Delete User:
+
+```
+http://localhost/PHP_Custome_Authentication/public/user.php
+```
+<img width="1918" height="1091" alt="Screenshot 2025-12-10 111422" src="https://github.com/user-attachments/assets/cd0fd459-2c49-4f86-942f-cec44319f11d" />
+
+<img width="1919" height="1089" alt="Screenshot 2025-12-10 111436" src="https://github.com/user-attachments/assets/cc84965c-cadf-403e-b1a2-aae0d037e87a" />
+
+
+---
 Your PHP_Custom_Authentication Project is ready!

@@ -65,7 +65,7 @@ Start **Apache** and **MySQL**.
 
 Ensure the `public/` folder exists and contains `index.php`.
 
-#### Step 1: Project Folder Setup
+## Step 1: Project Folder Setup
 
 Open your terminal (Command Prompt) and run:
 
@@ -99,7 +99,7 @@ public/ → CSS, JS, images for front-end
 sql/ → SQL scripts to create tables
 
 ---
-Step 2: Create database and import schema
+## Step 2: Create database and import schema
 
 Open phpMyAdmin or MySQL CLI and run the SQL in sql/custome.sql. Example:
 ```
@@ -126,7 +126,7 @@ CREATE TABLE custome (
 
 ```
 
-Step 3: Configure Database Connection
+## Step 3: Configure Database Connection
 
 File: config/database.php
 ```
@@ -161,7 +161,7 @@ try {
 }
 
 ```
-Step 4: Core Helper Functions
+## Step 4: Core Helper Functions
 
 File: core/helpers.php
 ```
@@ -191,7 +191,7 @@ function old($key) {
 ```
 These helpers handle redirects, login checks, and input sanitization.
 
-Step 5: Create Includes (Header, Footer, Auth Check)
+## Step 5: Create Includes (Header, Footer, Auth Check)
 
 1. Header: includes/header.php
 ```
@@ -237,7 +237,7 @@ if (!isset($_SESSION['custome_id'])) {
 }
 
 ```
-Step 6: Authentication PHP Files
+## Step 6: Authentication PHP Files
 
 ---
 
@@ -654,7 +654,7 @@ header("Location: login.php");
 exit;
 
 ```
-Step 7: Add CSS (Optional)
+## Step 7: Add CSS (Optional)
 
 File: public/css/style.css
 ```
@@ -746,7 +746,7 @@ button {
 }
 
 ```
-Step 8: Folder structure & files
+## Step 8: Folder structure & files
 ```
 PHP_Custome_Authentication/
 ├── config/
@@ -771,7 +771,7 @@ PHP_Custome_Authentication/
 └── README.md               # this file
 
 ```
-Step 9: Run the Project
+## Step 9: Run the Project
 
 Start XAMPP/Laragon/MAMP Apache & MySQL.
 
@@ -784,7 +784,7 @@ http://localhost/PHP_Custome_Authentication/public/register.php
 Test registration, login, and dashboard access.
 ---
 
-# Output:
+## Output:
 
 
 For Index:

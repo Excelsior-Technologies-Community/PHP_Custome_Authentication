@@ -3,7 +3,7 @@
 
 // Database connection settings
 $host = "localhost";      // Database host (usually localhost)
-$dbname = "php_auth";     // Name of the database
+$dbname = "php_auth_new";     // Name of the database
 $username = "root";       // Database username
 $password = "";           // Database password (set if any)
 

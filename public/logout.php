@@ -1,15 +1,13 @@
 <?php
-// public/logout.php
-
-// Start session to access session variables
 session_start();
 
-// Clear all session data
+// Clear session
 $_SESSION = [];
-
-// Destroy the session completely
 session_destroy();
 
-// Redirect user to login page after logout
+// ✅ Remove remember me cookie
+setcookie("email", "", time() - 3600, "/");
+
+// Redirect
 header("Location: login.php");
 exit;

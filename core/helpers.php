@@ -1,22 +1,26 @@
 <?php
-// core/helpers.php
 
-// Check if a user is logged in
-// Returns true if 'custome_id' exists in session, false otherwise
 function isLoggedIn() {
     return isset($_SESSION['custome_id']);
 }
 
-// Redirect to a given URL
-// Stops further execution after redirect
 function redirect($url) {
-    header("Location: $url"); // Send HTTP header to redirect
-    exit;                     // Stop script execution immediately
+    header("Location: $url");
+    exit;
 }
 
-// Retrieve old input value after form submission
-// Helps to repopulate form fields if validation fails
 function old($key) {
-    // Check if the key exists in $_POST, sanitize with htmlspecialchars, else return empty string
     return isset($_POST[$key]) ? htmlspecialchars($_POST[$key]) : '';
+}
+
+function set_flash($msg, $type = 'success') {
+    $_SESSION['flash'] = ['msg' => $msg, 'type' => $type];
+}
+
+function display_flash() {
+    if (isset($_SESSION['flash'])) {
+        $f = $_SESSION['flash'];
+        echo "<div style='padding: 10px; margin-bottom: 15px; border-radius: 4px; color: white; background: " . ($f['type'] == 'success' ? '#28a745' : '#dc3545') . ";'>{$f['msg']}</div>";
+        unset($_SESSION['flash']);
+    }
 }
